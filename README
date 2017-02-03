@@ -10,5 +10,51 @@ License: MIT License
 
 Should work with any ECMA-262-compliant JavaScript engine (including Node.js).
 
-More information:
- http://nikola.github.io/gruft/
+Usage
+Step 1. Include the gruft-common module in your page, e.g.
+
+<script src="path/to/javascript/files/gruft-common.js"></script>
+Step 2. Include the hash function module(s) that you require in your page, e.g.
+
+<script src="path/to/javascript/files/gruft-md5.js"></script>
+<script src="path/to/javascript/files/gruft-sha256.js"></script>
+Step 3a. In your Javascript code, instantiate the hash functions that you intend to use, e.g.
+
+var md5 = new gruft.MD5();
+var sha256 = new gruft.SHA256();
+Step 3b. Call the digest()-function on the instance with your input string, e.g.
+
+md5.digest("The quick brown fox jumps over the lazy dog")
+That is all.
+
+Upon instantiation (as shown in 3a), the respective hash function will perform a self-test with about 12 different variations of discrete test-vectors. If this self-test fails, the hash function will raise an error telling you which exact test-vector failed. Subsequent instantiations of the same hash function on your page will raise a fatal error to prevent further usage of the respective module.
+
+The digest()-function expects at least one argument. Calling the function without an argument is not the same as passing an empty string. You can also pass additional options to control the output format of the hash function:
+
+message
+The input string to digest. You can pass the input string as the first argument (and additional options as the second), or pack the input string into the options and pass them as a single argument.
+format
+The hash format. Available options are: "hex" (the default), "base64" (Base64-encoded), "base64_safe" (a URL-safe variant), "byteseq" (a Javascript Array).
+order
+The byte-order of the hash. The default order is, respectively: little-endian (for MD5, Tiger/192), big-endian (for SHA-1, SHA-256). You can choose a different byte-order by passing "little" or "big" in this field.
+Usage examples (taken from the respective self-test code):
+
+> var md5 = new gruft.MD5();
+> md5.digest("")
+  "d41d8cd98f00b204e9800998ecf8427e"
+
+> md5.digest({message:"MD5", format:"byteseq"})
+  [0x7f, 0x13, 0x8a, 0x09, 0x16, 0x9b, 0x25, 0x0e, 0x9d, 0xcb, 0x37, 0x81, 0x40, 0x90, 0x73, 0x78]
+
+> md5.digest({message:"ABCDEFGHIJ"})
+  "e86410fa2d6e2634fd8ac5f4b3afe7f3"
+
+> md5.digest({message:"ABCDEFGHIJ", format:"base64"})
+  "6GQQ+i1uJjT9isX0s6/n8w=="
+
+> md5.digest("ABCDEFGHIJ", {format:"base64_safe"})
+  "6GQQ-i1uJjT9isX0s6_n8w"
+
+> var tiger = new gruft.Tiger192();
+> tiger.digest("Tiger", {order:"big"})
+  "9f00f599072300dd276abb38c8eb6dec37790c116f9d2bdf"
